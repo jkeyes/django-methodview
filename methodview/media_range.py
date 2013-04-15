@@ -10,7 +10,16 @@ class MediaRange(object):
             content_type, params = media_range.split(';', 1)
         else:
             content_type, params = media_range, None
-        self.mtype, self.subtype = content_type.strip().split('/')
+        
+        content_type = content_type.strip()
+        if '/' in content_type:
+            self.mtype, self.subtype = content_type.split('/')
+        elif content_type == '*':
+            self.mtype = self.subtype = '*'
+        else:
+            self.mtype = content_type
+            self.subtype = '*'
+
         if self.mtype == "*" and self.subtype == "*":
             self.quality = int(0)
         else:

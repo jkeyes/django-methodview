@@ -7,9 +7,10 @@
 from setuptools import find_packages
 from setuptools import setup
 
-setup(name="django-methodview",
-    version='0.1.1',
-    description="Class based method view",
+setup(
+    name="django-methodview",
+    version='0.1.2',
+    description="Class based HTTP method view",
     long_description=open('README').read(),
     author="John Keyes",
     author_email="john@keyes.ie",
