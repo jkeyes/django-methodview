@@ -4,13 +4,14 @@
 # License: http://jkeyes.mit-license.org/
 #
 
+
 class MediaRange(object):
     def __init__(self, media_range):
         if ';' in media_range:
             content_type, params = media_range.split(';', 1)
         else:
             content_type, params = media_range, None
-        
+
         content_type = content_type.strip()
         if '/' in content_type:
             self.mtype, self.subtype = content_type.split('/')
@@ -39,22 +40,22 @@ class MediaRange(object):
                 else:
                     self.extensions[name] = value
         self._str = ";".join(parts)
-        
+
     @property
     def content_type(self):
         return '%s/%s' % (self.mtype, self.subtype)
-        
+
     @property
     def any_media(self):
         return "*/*" == self.content_type
-        
+
     @property
     def any_subtype(self):
         return self.subtype == "*"
 
     def __lt__(self, other):
         if self == other:
-             return False
+            return False
         if self.quality == other.quality:
             if self.mtype == "*":
                 if other.mtype != "*":
@@ -69,7 +70,7 @@ class MediaRange(object):
             elif len(self.extensions) > 0 and len(other.extensions) == 0:
                 return False
         return self.quality < other.quality
-        
+
     def __gt__(self, other):
         if not self == other:
             return not self < other
@@ -77,9 +78,9 @@ class MediaRange(object):
 
     def __eq__(self, other):
         return self.mtype == other.mtype and \
-               self.subtype == other.subtype and \
-               self.quality == other.quality and \
-               self.extensions == other.extensions
+            self.subtype == other.subtype and \
+            self.quality == other.quality and \
+            self.extensions == other.extensions
 
     def __str__(self):
         return self._str

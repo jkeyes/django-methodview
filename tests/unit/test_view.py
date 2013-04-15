@@ -4,13 +4,14 @@
 # License: http://jkeyes.mit-license.org/
 #
 
-from mock import Mock
-
-from unittest import TestCase
+import os
 
 from methodview import MethodView
-import os
+from mock import Mock
+from unittest import TestCase
+
 os.environ['DJANGO_SETTINGS_MODULE'] = 'methodview.view'
+
 
 class MockRequest(Mock):
 
@@ -20,6 +21,7 @@ class MockRequest(Mock):
     def __init__(self, method):
         super(MockRequest, self).__init__()
         self.method = method
+
 
 class BasicMethodTest(TestCase):
 
@@ -40,6 +42,7 @@ class BasicMethodTest(TestCase):
         request = MockRequest('POST')
         res = view(request)
         self.assertEqual('POSTED', res)
+
 
 class AcceptHeaderTest(TestCase):
 

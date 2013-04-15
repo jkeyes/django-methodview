@@ -6,14 +6,12 @@
 
 import inspect
 
-from django.core.urlresolvers import reverse
 from django.http import HttpResponse
 from django.http import HttpResponseNotAllowed
-from django.template import loader
-from django.template import RequestContext
-from django.utils.translation import ugettext_lazy as _
-
 from .accept_header import AcceptHeader
+
+ALLOWED_METHODS = ('GET', 'HEAD', 'POST', 'PUT')
+
 
 def hasmethod(obj, method_name):
     if hasattr(obj, method_name):
@@ -21,11 +19,13 @@ def hasmethod(obj, method_name):
         return inspect.ismethod(attr)
     return False
 
+
 class HttpResponseNotImplemented(HttpResponse):
     status_code = 501
 
     def __init__(self, *args, **kwargs):
         HttpResponse.__init__(self, *args, **kwargs)
+
 
 class HttpResponseNotAcceptable(HttpResponse):
     status_code = 406
@@ -33,7 +33,6 @@ class HttpResponseNotAcceptable(HttpResponse):
     def __init__(self, *args, **kwargs):
         HttpResponse.__init__(self, *args, **kwargs)
 
-ALLOWED_METHODS = ( 'GET', 'HEAD', 'POST', 'PUT')
 
 class MethodView(object):
 
@@ -43,7 +42,7 @@ class MethodView(object):
         self._allowed_methods = [a.upper() for a in allowed]
         self._accepts = accepts
         self._method_supported = False
-        
+
     def _get_handler(self, http_method, accept):
         self._methods = inspect.getmembers(self, inspect.ismethod)
         self._method_names = [method[0] for method in self._methods]
@@ -85,7 +84,7 @@ class MethodView(object):
         method_name = request.method
         if 'HTTP_ACCEPT' not in request.META:
             # From: http://www.w3.org/Protocols/rfc2616/rfc2616-sec14.html
-            #     "If no Accept header field is present, then it is assumed 
+            #     "If no Accept header field is present, then it is assumed
             #      that the client accepts all media types."
             accept = AcceptHeader("*/*")
         else:
@@ -93,7 +92,7 @@ class MethodView(object):
 
         if '_method' in request.REQUEST:
             method_name = request.REQUEST['_method']
-        
+
         method_name = method_name.upper()
         if method_name in self._allowed_methods:
             handler_name = method_name.lower()
@@ -102,7 +101,7 @@ class MethodView(object):
                 # if the method is handled for the Resource but
                 # an allowed MIME type handler is not found the
                 # return a NotAcceptable
-                # TODO: determine the response content 
+                # TODO: determine the response content
                 # See: http://labs.apache.org/webarch/http/draft-fielding-http/p2-semantics.html#status.406
                 if self._method_supported:
                     return HttpResponseNotAcceptable()
