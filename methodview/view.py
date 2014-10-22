@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 #
 # Copyright 2012 keyes.ie
 #
@@ -16,7 +17,7 @@ ALLOWED_METHODS = ('GET', 'HEAD', 'POST', 'PUT')
 def hasmethod(obj, method_name):
     if hasattr(obj, method_name):
         attr = getattr(obj, method_name)
-        return inspect.ismethod(attr)
+        return inspect.ismethod(attr) or inspect.isfunction(attr)
     return False
 
 
@@ -70,7 +71,8 @@ class MethodView(object):
                         handler_name = name
                         break
             else:
-                handler_name = "%s_%s_%s" % (http_method, media_range.mtype, media_range.subtype)
+                handler_name = "%s_%s_%s" % (
+                    http_method, media_range.mtype, media_range.subtype)
             if handler_name and hasmethod(self, handler_name):
                 return getattr(self, handler_name)
         if hasmethod(self, http_method):
@@ -102,7 +104,6 @@ class MethodView(object):
                 # an allowed MIME type handler is not found the
                 # return a NotAcceptable
                 # TODO: determine the response content
-                # See: http://labs.apache.org/webarch/http/draft-fielding-http/p2-semantics.html#status.406
                 if self._method_supported:
                     return HttpResponseNotAcceptable()
                 return HttpResponseNotImplemented()
