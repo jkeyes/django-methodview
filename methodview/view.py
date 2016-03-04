@@ -1,3 +1,4 @@
+"""Django Method View."""
 # -*- coding: utf-8 -*-
 #
 # Copyright 2012 keyes.ie
@@ -15,6 +16,7 @@ ALLOWED_METHODS = ('GET', 'HEAD', 'POST', 'PUT')
 
 
 def hasmethod(obj, method_name):
+    """Check if `obj` has a callable attribute `method_name`."""
     if hasattr(obj, method_name):
         attr = getattr(obj, method_name)
         return inspect.ismethod(attr) or inspect.isfunction(attr)
@@ -22,22 +24,32 @@ def hasmethod(obj, method_name):
 
 
 class HttpResponseNotImplemented(HttpResponse):
+    """HttpResponse 501."""
+
     status_code = 501
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, **kwargs):  # noqa
         HttpResponse.__init__(self, *args, **kwargs)
 
 
 class HttpResponseNotAcceptable(HttpResponse):
+    """HttpResponse 406."""
+
     status_code = 406
 
-    def __init__(self, *args, **kwargs):
+    def __init__(self, *args, **kwargs):  # noqa
         HttpResponse.__init__(self, *args, **kwargs)
 
 
 class MethodView(object):
+    """The MethodView class."""
 
     def __init__(self, allowed=None, accepts=None):
+        """Initialize the view.
+
+        * allowed - what methods are allowed
+        * accepts - what media types are accepted
+        """
         if allowed is None:
             allowed = ALLOWED_METHODS
         self._allowed_methods = [a.upper() for a in allowed]
@@ -80,9 +92,7 @@ class MethodView(object):
         return None
 
     def __call__(self, request, *args, **kwargs):
-        """
-        Method dispatcher.
-        """
+        """Method dispatcher."""
         method_name = request.method
         if 'HTTP_ACCEPT' not in request.META:
             # From: http://www.w3.org/Protocols/rfc2616/rfc2616-sec14.html
@@ -92,8 +102,11 @@ class MethodView(object):
         else:
             accept = AcceptHeader(request.META['HTTP_ACCEPT'])
 
-        if '_method' in request.REQUEST:
-            method_name = request.REQUEST['_method']
+        # check in POST then GET for _method.
+        if '_method' in request.POST:
+            method_name = request.POST['_method']
+        elif '_method' in request.GET:
+            method_name = request.GET['_method']
 
         method_name = method_name.upper()
         if method_name in self._allowed_methods:

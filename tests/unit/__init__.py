@@ -1,3 +1,4 @@
+"""Unit test package."""
 #
 # Copyright 2012 keyes.ie
 #

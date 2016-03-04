@@ -9,7 +9,7 @@ from setuptools import setup
 
 setup(
     name="django-methodview",
-    version='0.1.3',
+    version='0.1.4',
     description="Class based HTTP method view",
     long_description=open('README').read(),
     author="John Keyes",

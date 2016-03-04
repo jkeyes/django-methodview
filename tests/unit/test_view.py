@@ -1,3 +1,4 @@
+"""Tests for MethodView."""
 #
 # Copyright 2012 keyes.ie
 #
@@ -13,53 +14,62 @@ from unittest import TestCase
 os.environ['DJANGO_SETTINGS_MODULE'] = 'methodview.view'
 
 
-class MockRequest(Mock):
-
-    META = {}
-    REQUEST = {}
-
-    def __init__(self, method):
-        super(MockRequest, self).__init__()
-        self.method = method
+def create_request(method):
+    """Creare a Mock HTTP Request."""
+    request = Mock(META={}, POST={}, GET={}, method=method)
+    return request
 
 
 class BasicMethodTest(TestCase):
+    """Test for method/verb support."""
 
     class TestView(MethodView):
+        """A Test view."""
+
         def get(self, request):
+            """Return GOT."""
             return 'GOT'
 
         def post(self, request):
+            """Return POSTED."""
             return 'POSTED'
 
     def test(self):
+        """Test GET and POST."""
         view = BasicMethodTest.TestView()
 
-        request = MockRequest('GET')
+        request = create_request('GET')
         res = view(request)
         self.assertEqual('GOT', res)
 
-        request = MockRequest('POST')
+        request = create_request('POST')
         res = view(request)
         self.assertEqual('POSTED', res)
 
 
 class AcceptHeaderTest(TestCase):
+    """Test for honouring `Accept` header."""
 
     class TestView(MethodView):
+        """Test View."""
+
         def get(self, request):
+            """Return 'GOT DEFAULT'."""
             return 'GOT DEFAULT'
 
         def get_text_html(self, request):
+            """Return 'GOT TEXT HTML'."""
             return 'GOT TEXT HTML'
 
         def get_application_json(self, request):
+            """Return 'GOT APPLICATION JSON'."""
             return 'GOT APPLICATION JSON'
 
     def test(self):
+        """Test `Accept` header."""
         view = AcceptHeaderTest.TestView()
 
-        request = MockRequest('GET')
+        request = create_request('GET')
         res = view(request)
         self.assertEqual('GOT DEFAULT', res)
 
