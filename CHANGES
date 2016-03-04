@@ -1,3 +1,7 @@
+## 0.1.4 - Mar. 4 2016
+
+* Removing dependency on `request.REQUEST`.
+
 ## 0.1.3 - Oct. 22 2014
 
 * Adding support for function handlers.

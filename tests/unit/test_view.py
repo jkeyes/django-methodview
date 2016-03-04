@@ -13,14 +13,9 @@ from unittest import TestCase
 os.environ['DJANGO_SETTINGS_MODULE'] = 'methodview.view'
 
 
-class MockRequest(Mock):
-
-    META = {}
-    REQUEST = {}
-
-    def __init__(self, method):
-        super(MockRequest, self).__init__()
-        self.method = method
+def create_request(method):
+    request = Mock(META={}, POST={}, GET={}, method=method)
+    return request
 
 
 class BasicMethodTest(TestCase):
@@ -35,11 +30,11 @@ class BasicMethodTest(TestCase):
     def test(self):
         view = BasicMethodTest.TestView()
 
-        request = MockRequest('GET')
+        request = create_request('GET')
         res = view(request)
         self.assertEqual('GOT', res)
 
-        request = MockRequest('POST')
+        request = create_request('POST')
         res = view(request)
         self.assertEqual('POSTED', res)
 
@@ -59,7 +54,7 @@ class AcceptHeaderTest(TestCase):
     def test(self):
         view = AcceptHeaderTest.TestView()
 
-        request = MockRequest('GET')
+        request = create_request('GET')
         res = view(request)
         self.assertEqual('GOT DEFAULT', res)
 

@@ -92,8 +92,11 @@ class MethodView(object):
         else:
             accept = AcceptHeader(request.META['HTTP_ACCEPT'])
 
-        if '_method' in request.REQUEST:
-            method_name = request.REQUEST['_method']
+        # check in POST then GET for _method.
+        if '_method' in request.POST:
+            method_name = request.POST['_method']
+        elif '_method' in request.GET:
+            method_name = request.GET['_method']
 
         method_name = method_name.upper()
         if method_name in self._allowed_methods:
