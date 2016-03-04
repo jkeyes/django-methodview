@@ -1,3 +1,4 @@
+"""Media Range."""
 #
 # Copyright 2012 keyes.ie
 #
@@ -6,7 +7,10 @@
 
 
 class MediaRange(object):
+    """A MediaRange class."""
+
     def __init__(self, media_range):
+        """Initialize the object by parsing media ragnge."""
         if ';' in media_range:
             content_type, params = media_range.split(';', 1)
         else:
@@ -43,17 +47,21 @@ class MediaRange(object):
 
     @property
     def content_type(self):
+        """Return the content_type of the range."""
         return '%s/%s' % (self.mtype, self.subtype)
 
     @property
     def any_media(self):
+        """Return whether this range accepts any media."""
         return "*/*" == self.content_type
 
     @property
     def any_subtype(self):
+        """Return whether this range accepts any subtype."""
         return self.subtype == "*"
 
     def __lt__(self, other):
+        """Return whether this range is less than the `other` range."""
         if self == other:
             return False
         if self.quality == other.quality:
@@ -72,15 +80,18 @@ class MediaRange(object):
         return self.quality < other.quality
 
     def __gt__(self, other):
+        """Return whether this range is greater than the `other` range."""
         if not self == other:
             return not self < other
         return False
 
     def __eq__(self, other):
+        """Return whether this range is equal to the `other` range."""
         return self.mtype == other.mtype and \
             self.subtype == other.subtype and \
             self.quality == other.quality and \
             self.extensions == other.extensions
 
     def __str__(self):
+        """Return a string representation of this range."""
         return self._str

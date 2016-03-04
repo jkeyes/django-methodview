@@ -1,3 +1,4 @@
+"""Django Methodview."""
 #
 # Copyright 2012 keyes.ie
 #
