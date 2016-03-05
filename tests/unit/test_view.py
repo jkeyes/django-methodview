@@ -7,16 +7,19 @@
 
 import os
 
+from django.http import HttpResponse
+from methodview import AuthorizationError
 from methodview import MethodView
 from mock import Mock
 from unittest import TestCase
 
-os.environ['DJANGO_SETTINGS_MODULE'] = 'methodview.view'
+os.environ['DJANGO_SETTINGS_MODULE'] = 'unit.test_view'
+SECRET_KEY = 'xxx'
 
 
-def create_request(method):
+def create_request(method, get={}):
     """Creare a Mock HTTP Request."""
-    request = Mock(META={}, POST={}, GET={}, method=method)
+    request = Mock(META={}, POST={}, GET=get, method=method)
     return request
 
 
@@ -80,3 +83,37 @@ class AcceptHeaderTest(TestCase):
         request.META['HTTP_ACCEPT'] = 'application/json'
         res = view(request)
         self.assertEqual('GOT APPLICATION JSON', res)
+
+
+class AuthorizeTest(TestCase):
+    """Test for honouring `Accept` header."""
+
+    class TestView(MethodView):
+        """Test View."""
+
+        def authorize(self, request):
+            """Authorize the request."""
+            if 'auth' not in request.GET:
+                raise AuthorizationError(401, 'No Auth', 'text/plain')
+
+        def get(self, request):
+            """Return 'AUTHORIZED'."""
+            return HttpResponse('AUTHORIZED')
+
+    def test_no_auth(self):
+        """Test no authorization."""
+        view = AuthorizeTest.TestView()
+
+        request = create_request('GET')
+        res = view(request)
+        self.assertEqual(401, res.status_code)
+        self.assertEqual('No Auth', res.content)
+
+    def test_auth(self):
+        """Test no authorization."""
+        view = AuthorizeTest.TestView()
+
+        request = create_request('GET', {'auth': 'yes'})
+        res = view(request)
+        self.assertEqual(200, res.status_code)
+        self.assertEqual('AUTHORIZED', res.content)
