@@ -107,7 +107,7 @@ class AuthorizeTest(TestCase):
         request = create_request('GET')
         res = view(request)
         self.assertEqual(401, res.status_code)
-        self.assertEqual('No Auth', res.content)
+        self.assertEqual(b'No Auth', res.content)
 
     def test_auth(self):
         """Test no authorization."""
@@ -116,4 +116,4 @@ class AuthorizeTest(TestCase):
         request = create_request('GET', {'auth': 'yes'})
         res = view(request)
         self.assertEqual(200, res.status_code)
-        self.assertEqual('AUTHORIZED', res.content)
+        self.assertEqual(b'AUTHORIZED', res.content)
