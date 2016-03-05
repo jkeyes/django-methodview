@@ -51,12 +51,6 @@ class HttpResponseNotAcceptable(HttpResponse):
         HttpResponse.__init__(self, *args, **kwargs)
 
 
-class HttpResponse(HttpResponse):
-    """HttpResponse 406."""
-
-    status_code = 406
-
-
 class MethodView(object):
     """The MethodView class."""
 
