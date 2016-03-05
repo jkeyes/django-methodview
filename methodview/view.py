@@ -128,7 +128,7 @@ class MethodView(object):
         # authorize the call if possible
         try:
             self._authorize(request, accept)
-        except AuthorizationError, auth_error:
+        except (AuthorizationError) as auth_error:
             # not authorized, send an error response
             return HttpResponse(
                 auth_error.message, content_type=auth_error.content_type,
