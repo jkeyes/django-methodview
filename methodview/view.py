@@ -115,9 +115,7 @@ class MethodView(object):
 
         self.authorize(request)
 
-    def __call__(self, request, *args, **kwargs):
-        """Method dispatcher."""
-        method_name = request.method
+    def _get_accept(self, request):
         if 'HTTP_ACCEPT' not in request.META:
             # From: http://www.w3.org/Protocols/rfc2616/rfc2616-sec14.html
             #     "If no Accept header field is present, then it is assumed
@@ -125,6 +123,13 @@ class MethodView(object):
             accept = AcceptHeader("*/*")
         else:
             accept = AcceptHeader(request.META['HTTP_ACCEPT'])
+        return accept
+
+    def __call__(self, request, *args, **kwargs):
+        """Method dispatcher."""
+        method_name = request.method
+
+        accept = self._get_accept(request)
 
         # authorize the call if possible
         try:
