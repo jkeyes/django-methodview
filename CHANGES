@@ -1,3 +1,7 @@
+## 0.2.0 – Mar. 5 2016
+
+* Adding support for authorizing requests.
+
 ## 0.1.4 - Mar. 4 2016
 
 * Removing dependency on `request.REQUEST`.

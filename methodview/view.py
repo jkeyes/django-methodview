@@ -23,6 +23,16 @@ def hasmethod(obj, method_name):
     return False
 
 
+class AuthorizationError(Exception):
+    """An error raised when authorization fails."""
+
+    def __init__(self, code, message, content_type):
+        """Initialize the error."""
+        self.code = code
+        self.message = message
+        self.content_type = content_type
+
+
 class HttpResponseNotImplemented(HttpResponse):
     """HttpResponse 501."""
 
@@ -91,9 +101,15 @@ class MethodView(object):
             return getattr(self, http_method)
         return None
 
-    def __call__(self, request, *args, **kwargs):
-        """Method dispatcher."""
-        method_name = request.method
+    def _authorize(self, request, accept):
+        """Return an HTTP 401 if the request cannot be authorized."""
+        if not hasmethod(self, 'authorize'):
+            # nothing to authorize, move along
+            return
+
+        self.authorize(request)
+
+    def _get_accept(self, request):
         if 'HTTP_ACCEPT' not in request.META:
             # From: http://www.w3.org/Protocols/rfc2616/rfc2616-sec14.html
             #     "If no Accept header field is present, then it is assumed
@@ -101,6 +117,22 @@ class MethodView(object):
             accept = AcceptHeader("*/*")
         else:
             accept = AcceptHeader(request.META['HTTP_ACCEPT'])
+        return accept
+
+    def __call__(self, request, *args, **kwargs):
+        """Method dispatcher."""
+        method_name = request.method
+
+        accept = self._get_accept(request)
+
+        # authorize the call if possible
+        try:
+            self._authorize(request, accept)
+        except (AuthorizationError) as auth_error:
+            # not authorized, send an error response
+            return HttpResponse(
+                auth_error.message, content_type=auth_error.content_type,
+                status=auth_error.code)
 
         # check in POST then GET for _method.
         if '_method' in request.POST:
