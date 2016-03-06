@@ -76,14 +76,15 @@ class MethodView(object):
                 # check for default first
                 if http_method in self._method_names:
                     handler_name = http_method
-                    break
+                    break  # don't check anything else in the accept header
+                # check for prefixed
                 method_prefix = "%s_" % (http_method)
                 for name in self._method_names:
                     if name.startswith(method_prefix):
                         handler_name = name
                         break
-                if handler_name is None and http_method in self._method_names:
-                    handler_name = http_method
+                # if handler_name is None and http_method in self._method_names:
+                #     handler_name = http_method
             elif media_range.any_subtype:
                 method_prefix = "%s_%s_" % (http_method, media_range.mtype)
                 for name in self._method_names:

@@ -72,6 +72,18 @@ class AcceptHeaderTest(TestCase):
             """Return 'PUT WHATEVER'."""
             return 'PUT WHATEVER'
 
+        def post(self, request):
+            """Return 'POST'."""
+            return 'POST'
+
+        def post_whatever(self, request):
+            """Return 'POST'."""
+            return 'POST'
+
+        def delete_text_plain(self, request):
+            """Return 'POST'."""
+            return 'POST'
+
     def test(self):
         """Test `Accept` header."""
         view = AcceptHeaderTest.TestView()
@@ -96,6 +108,20 @@ class AcceptHeaderTest(TestCase):
         request.META['HTTP_ACCEPT'] = '*/*'
         res = view(request)
         self.assertEqual('PUT WHATEVER', res)
+
+        request = create_request('POST')
+        request.META['HTTP_ACCEPT'] = '*/*'
+        res = view(request)
+        self.assertEqual('POST', res)
+
+    def test_no_specific_handler(self):
+        """Test 'whatever' media."""
+        view = AcceptHeaderTest.TestView(allowed=['DELETE'])
+
+        request = create_request('DELETE')
+        request.META['HTTP_ACCEPT'] = 'whatever'
+        res = view(request)
+        self.assertEqual(406, res.status_code)
 
 
 class AuthorizeTest(TestCase):
