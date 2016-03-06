@@ -173,3 +173,20 @@ class MethodRequestTest(TestCase):
         res = view(request)
         self.assertEqual(200, res.status_code)
         self.assertEqual(b'PUT', res.content)
+
+
+class MethodNotImplementedTest(TestCase):
+    """Test for a not implemented method."""
+
+    class TestView(MethodView):
+        """Test View."""
+
+        pass
+
+    def test_no_get(self):
+        """Test a GET request."""
+        view = MethodRequestTest.TestView()
+
+        request = create_request('GET')
+        res = view(request)
+        self.assertEqual(501, res.status_code)
