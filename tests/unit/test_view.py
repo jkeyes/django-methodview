@@ -68,6 +68,10 @@ class AcceptHeaderTest(TestCase):
             """Return 'GOT APPLICATION JSON'."""
             return 'GOT APPLICATION JSON'
 
+        def put_whatever(self, request):
+            """Return 'PUT WHATEVER'."""
+            return 'PUT WHATEVER'
+
     def test(self):
         """Test `Accept` header."""
         view = AcceptHeaderTest.TestView()
@@ -83,6 +87,15 @@ class AcceptHeaderTest(TestCase):
         request.META['HTTP_ACCEPT'] = 'application/json'
         res = view(request)
         self.assertEqual('GOT APPLICATION JSON', res)
+
+    def test_any_media(self):
+        """Test */* media."""
+        view = AcceptHeaderTest.TestView()
+
+        request = create_request('PUT')
+        request.META['HTTP_ACCEPT'] = '*/*'
+        res = view(request)
+        self.assertEqual('PUT WHATEVER', res)
 
 
 class AuthorizeTest(TestCase):
