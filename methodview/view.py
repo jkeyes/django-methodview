@@ -54,16 +54,14 @@ class HttpResponseNotAcceptable(HttpResponse):
 class MethodView(object):
     """The MethodView class."""
 
-    def __init__(self, allowed=None, accepts=None):
+    def __init__(self, allowed=None):
         """Initialize the view.
 
         * allowed - what methods are allowed
-        * accepts - what media types are accepted
         """
         if allowed is None:
             allowed = ALLOWED_METHODS
         self._allowed_methods = [a.upper() for a in allowed]
-        self._accepts = accepts
         self._method_supported = False
 
     def _get_handler(self, http_method, accept):
