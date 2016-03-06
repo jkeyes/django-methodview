@@ -117,3 +117,35 @@ class AuthorizeTest(TestCase):
         res = view(request)
         self.assertEqual(200, res.status_code)
         self.assertEqual(b'AUTHORIZED', res.content)
+
+
+class AllowedMethodsTest(TestCase):
+    """Test for only allowing specified methods."""
+
+    class TestView(MethodView):
+        """Test View."""
+
+        def get(self, request):
+            """Return 'GET ALLOWED'."""
+            return HttpResponse('GET ALLOWED')
+
+        def post(self, request):
+            """Return 'POST ALLOWED'."""
+            return HttpResponse('POST ALLOWED')
+
+    def test_allowed(self):
+        """Test no authorization."""
+        view = AllowedMethodsTest.TestView(allowed=['GET'])
+
+        request = create_request('GET')
+        res = view(request)
+        self.assertEqual(200, res.status_code)
+        self.assertEqual(b'GET ALLOWED', res.content)
+
+    def test_not_allowed(self):
+        """Test no authorization."""
+        view = AllowedMethodsTest.TestView(allowed=['GET'])
+
+        request = create_request('POST')
+        res = view(request)
+        self.assertEqual(405, res.status_code)
