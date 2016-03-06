@@ -17,9 +17,9 @@ os.environ['DJANGO_SETTINGS_MODULE'] = 'unit.test_view'
 SECRET_KEY = 'xxx'
 
 
-def create_request(method, get={}):
+def create_request(method, get={}, post={}):
     """Creare a Mock HTTP Request."""
-    request = Mock(META={}, POST={}, GET=get, method=method)
+    request = Mock(META={}, POST=post, GET=get, method=method)
     return request
 
 
@@ -149,3 +149,27 @@ class AllowedMethodsTest(TestCase):
         request = create_request('POST')
         res = view(request)
         self.assertEqual(405, res.status_code)
+
+
+class MethodRequestTest(TestCase):
+    """Test for checking _method support."""
+
+    class TestView(MethodView):
+        """Test View."""
+
+        def post(self, request):
+            """Return 'POST'."""
+            return HttpResponse('POST')
+
+        def put(self, request):
+            """Return 'PUT'."""
+            return HttpResponse('PUT')
+
+    def test_post_put_method(self):
+        """Test a POST saying it's a PUT."""
+        view = MethodRequestTest.TestView()
+
+        request = create_request('POST', post={'_method': 'PUT'})
+        res = view(request)
+        self.assertEqual(200, res.status_code)
+        self.assertEqual(b'PUT', res.content)
