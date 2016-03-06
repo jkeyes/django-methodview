@@ -84,6 +84,10 @@ class AcceptHeaderTest(TestCase):
             """Return 'POST'."""
             return 'POST'
 
+        def get_image_jif(self, request):
+            """Return 'IMAGE JIF'."""
+            return 'IMAGE JIF'
+
     def test(self):
         """Test `Accept` header."""
         view = AcceptHeaderTest.TestView()
@@ -122,6 +126,15 @@ class AcceptHeaderTest(TestCase):
         request.META['HTTP_ACCEPT'] = 'whatever'
         res = view(request)
         self.assertEqual(406, res.status_code)
+
+    def test_any_subtype(self):
+        """Test 'whatever' media."""
+        view = AcceptHeaderTest.TestView()
+
+        request = create_request('GET')
+        request.META['HTTP_ACCEPT'] = 'image/*'
+        res = view(request)
+        self.assertEqual('IMAGE JIF', res)
 
 
 class AuthorizeTest(TestCase):
