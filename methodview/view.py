@@ -54,17 +54,21 @@ class HttpResponseNotAcceptable(HttpResponse):
 class MethodView(object):
     """The MethodView class."""
 
-    def __init__(self, allowed=None, accepts=None):
+    def __init__(self, allowed=None):
         """Initialize the view.
 
         * allowed - what methods are allowed
-        * accepts - what media types are accepted
         """
         if allowed is None:
             allowed = ALLOWED_METHODS
         self._allowed_methods = [a.upper() for a in allowed]
-        self._accepts = accepts
         self._method_supported = False
+        self._handlers = []
+        super(MethodView, self).__init__()
+
+    def add_handler(self, request):
+        """Add a handler."""
+        self._handlers.append(request)
 
     def _get_handler(self, http_method, accept):
         self._methods = inspect.getmembers(self, inspect.ismethod)
@@ -78,14 +82,15 @@ class MethodView(object):
                 # check for default first
                 if http_method in self._method_names:
                     handler_name = http_method
-                    break
+                    break  # don't check anything else in the accept header
+                # check for prefixed
                 method_prefix = "%s_" % (http_method)
                 for name in self._method_names:
                     if name.startswith(method_prefix):
                         handler_name = name
                         break
-                if handler_name is None and http_method in self._method_names:
-                    handler_name = http_method
+                # if handler_name is None and http_method in self._method_names:
+                #     handler_name = http_method
             elif media_range.any_subtype:
                 method_prefix = "%s_%s_" % (http_method, media_range.mtype)
                 for name in self._method_names:
@@ -124,6 +129,12 @@ class MethodView(object):
         method_name = request.method
 
         accept = self._get_accept(request)
+
+        # call any handlers
+        for h in self._handlers:
+            resp = h.handle(request, *args, **kwargs)
+            if resp:
+                return resp
 
         # authorize the call if possible
         try:

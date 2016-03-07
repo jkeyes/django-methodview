@@ -1,0 +1,8 @@
+[run]
+source = methodview
+
+[report]
+omit =
+    tests/*
+    */python?.?/*
+    */site-packages/nose/*
