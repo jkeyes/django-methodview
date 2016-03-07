@@ -237,8 +237,43 @@ class MethodNotImplementedTest(TestCase):
 
     def test_no_get(self):
         """Test a GET request."""
-        view = MethodRequestTest.TestView()
+        view = MethodNotImplementedTest.TestView()
 
         request = create_request('GET')
         res = view(request)
         self.assertEqual(501, res.status_code)
+
+
+class HandlerTest(TestCase):
+    """Test for checking _method support."""
+
+    class DebugHandler(object):
+        """Test Handler."""
+
+        def __init__(self, *args, **kwargs):
+            """Initialize the handler."""
+            print("BOO" * 10)
+            super(HandlerTest.DebugHandler, self).__init__(*args, **kwargs)
+            self.add_handler(self)
+
+        def handle(self, request):
+            """Handle the request."""
+            request.GET['DEBUG_HANDLER'] = True
+
+    class TestView(MethodView, DebugHandler):
+        """Test View."""
+
+        def get(self, request):
+            """Return 'GET'."""
+            return HttpResponse('GET')
+
+    def test_get(self):
+        """Test a GET."""
+        view = HandlerTest.TestView()
+
+        request = create_request('GET')
+        self.assertFalse('DEBUG_HANDLER' in request.GET)
+        res = view(request)
+        self.assertEqual(200, res.status_code)
+        self.assertEqual(b'GET', res.content)
+        self.assertTrue('DEBUG_HANDLER' in request.GET)

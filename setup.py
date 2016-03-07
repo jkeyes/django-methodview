@@ -9,9 +9,9 @@ from setuptools import setup
 
 setup(
     name="django-methodview",
-    version='0.2',
+    version='0.3',
     description="Class based HTTP method view",
-    long_description=open('README').read(),
+    long_description=open('README.rst').read(),
     author="John Keyes",
     author_email="john@keyes.ie",
     license="MIT License",

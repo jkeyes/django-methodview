@@ -63,6 +63,12 @@ class MethodView(object):
             allowed = ALLOWED_METHODS
         self._allowed_methods = [a.upper() for a in allowed]
         self._method_supported = False
+        self._handlers = []
+        super(MethodView, self).__init__()
+
+    def add_handler(self, request):
+        """Add a handler."""
+        self._handlers.append(request)
 
     def _get_handler(self, http_method, accept):
         self._methods = inspect.getmembers(self, inspect.ismethod)
@@ -123,6 +129,12 @@ class MethodView(object):
         method_name = request.method
 
         accept = self._get_accept(request)
+
+        # call any handlers
+        for h in self._handlers:
+            resp = h.handle(request, *args, **kwargs)
+            if resp:
+                return resp
 
         # authorize the call if possible
         try:
